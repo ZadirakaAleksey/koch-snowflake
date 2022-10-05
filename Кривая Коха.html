@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+ <title>Кривая Коха</title>
+
+<script type="text/javascript">
+ 
+ var cnv,ctx,sel
+ 
+ function getPoints(a,b){
+ 
+    var p,k,i,j,phi
+    var pts=new Array(2)
+    
+    for(i=0;i<pts.length;i++){
+ 
+        pts[i]=new Array(2)
+    }
+ 
+    for(i=0;i<2;i++){
+        pts[0][i]=a[i]
+        pts[1][i]=b[i]
+    }
+
+
+
+    var n=document.getElementById("mysel").selectedIndex
+ 
+    for(k=1;k<=n;k++){
+ 
+        p=new Array(4*pts.length-3)
+
+        for(i=0;i<pts.length-1;i++){
+ 
+            for(j=0;j<4;j++){
+                p[4*i+j]=new Array(2)
+            }
+ 
+            for(j=0;j<2;j++){
+                p[4*i][j]=pts[i][j]
+                p[4*i+1][j]=Math.round(2*pts[i][j]/3+pts[i+1][j]/3)
+                p[4*i+3][j]=Math.round(pts[i][j]/3+2*pts[i+1][j]/3)
+            }
+ 
+            phi=Math.atan2(p[4*i+1][1]-p[4*i+3][1],p[4*i+3][0]-p[4*i+1][0])
+            L=Math.sqrt(Math.pow(p[4*i+3][0]-p[4*i+1][0],2)+Math.pow(p[4*i+3][1]-p[4*i+1][1],2))
+            p[4*i+2][0]=Math.round(p[4*i+1][0]+L*Math.cos(phi+Math.PI/3))
+            p[4*i+2][1]=Math.round(p[4*i+1][1]-L*Math.sin(phi+Math.PI/3))
+        }
+ 
+        p[4*pts.length-4]=new Array(2)
+ 
+        for(j=0;j<2;j++){
+            p[4*pts.length-4][j]=pts[pts.length-1][j]
+        }
+        pts=p
+    }
+
+    return pts
+ }
+ 
+ function drawPoints(p,ct){
+
+    ct.beginPath()
+    ct.strokeStyle="blue"
+    ct.lineWidth=1
+    ct.moveTo(p[0][0],p[0][1])
+
+    for(var k=1;k<p.length;k++){
+        ct.lineTo(p[k][0],p[k][1])
+    }
+
+    ct.stroke()
+ }
+ 
+ window.onload=function(){
+    cnv=document.getElementById("mycanvas")
+    ctx=cnv.getContext("2d")
+    sel=document.getElementById("mysel")
+    var k,Nmax=9
+ 
+    for(k=0;k<=Nmax;k++){
+        sel.options[k]=new Option(k,k)
+        sel.selectedIndex=0
+    }
+
+    drawPoints(getPoints([10,cnv.height-10],[cnv.width-10,cnv.height-10]),ctx)
+ 
+        sel.onchange=function(){
+        ctx.clearRect(0,0,cnv.width,cnv.height)
+        drawPoints(getPoints([10,cnv.height-10],[cnv.width-10,cnv.height-10]),ctx)
+    }
+ }
+</script>
+    
+<style>
+    header{
+        width: 900px;     
+        height: 200px;   
+        background-color: #25B33f;  
+        margin-bottom: 10px;   
+        
+    }
+    
+    body{
+        background: #FAF0E6
+    }
+    
+    p {
+        font-size: 26px;
+    }
+    </style>
+</head>
+<body>
+ <h3></h3><hr>
+    <div id="header">
+  <h1>Снежинка (кривая) Коха<h1>
+    <p class="descript">Описание и визуализация снежинки Коха</p>
+</div>
+    <p>Эта фигура — один из первых исследованных учеными фракталов.<br>
+    Она получается из трех копий кривой Коха, которая впервые появилась<br>
+    в статье шведского математика Хельге фон Коха в 1904 году. Эта кривая<br>
+    была придумана как пример непрерывной линии, к которой нельзя провести<br>
+    касательную ни в одной точке. Линии с таким свойством были известны<br>
+    и раньше (Карл Вейерштрасс построил свой пример еще в 1872 году),<br>
+    но кривая Коха замечательна простотой своей конструкции.<br>
+    Не случайно его статья называется «О непрерывной кривой без касательных,<br>
+        которая возникает из элементарной геометрии».<br></p>
+    
+    <img src="i.gif" width=”480px” height=”125px”>
+    <p></p>
+    <table>
+        <tr ><th>Итерации</th><th>Количество вершин</th></tr> <!--ряд с ячейками заголовков-->
+        <tr><td>1</td><td>1</tr> <!--ряд с ячейками тела таблицы-->
+        <tr><td>2</td><td>5</tr>
+        <tr><td>3</td><td>21</tr>
+        <tr><td>4</td><td>85</tr>
+        <tr><td>5</td><td>341</tr>
+        <tr><td>6</td><td>1365</tr>
+        <tr><td>7</td><td>5461</tr>
+        <tr><td>8</td><td>21845</tr>
+        <tr><td>9</td><td>87381</tr>
+      </table> 
+    <p>Количество вершин снежинки коха считается по формуле 3*4<sup>n</sup><br>
+    в случае представленном в анимации формула принимает вид (4<sup>n</sup>-1)/3</p>
+ <span style="font-size:16pt;">кривая Коха. Итерации:</span>
+ 
+ <select id="mysel" size="1" style="width:50px;text-align:right;font-size:11pt;fontweight:bold;"></select><br><br>
+
+ <canvas id="mycanvas" width="920" height="280" style="border-style:ridge;"></canvas>
+      
+      <p>Больше информации о периметре, площади и о фрактальной размерности читайте <a href = "https://elementy.ru/posters/fractals/Koch">тут.</a></p>
+</body>
+</html>
